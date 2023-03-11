@@ -32,7 +32,8 @@ RUN git clone https://github.com/karpathy/arxiv-sanity-lite && \
     git reset --hard $COMMIT && \
     sed -i "s|DATA_DIR = '."'*'"|DATA_DIR = '/data'|" aslite/db.py
 
-# dependencies
+# dependencies (TODO build sklearn before getting the repository by manually specifying the version
+# in requirements.txt, so we don't have to wait so long every time)
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
     pip install --upgrade pip && \
     pip install --prefix="/install" \

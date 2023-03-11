@@ -23,6 +23,10 @@ var serveCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		setConfig()
 
+		if viper.GetString("secretkey") == "devkey" {
+			log.Println("WARNING: Using default secret key. Please set the SECRETKEY env var")
+		}
+
 		if err := serve(); err != nil {
 			fmt.Fprintf(os.Stderr, "error: %v\n", err)
 			os.Exit(1)
@@ -35,6 +39,12 @@ func serve() error {
 	fromScratch, err := noData("/data")
 	if err != nil {
 		return fmt.Errorf("check database: %w", err)
+	}
+
+	// set the secret key
+	err = os.WriteFile("secret_key.txt", []byte(viper.GetString("secretkey")), 0o600)
+	if err != nil {
+		return fmt.Errorf("set secret key: %w", err)
 	}
 
 	log.Println("starting database from scratch:", fromScratch)
@@ -75,7 +85,10 @@ func serve() error {
 			"flask", "run",
 			"--port=80", "--host=0.0.0.0", // necessary for docker
 		)
-		cmd.Env = []string{"FLASK_APP=serve.py"}
+		cmd.Env = []string{
+			"FLASK_APP=serve.py",
+			"PYTHONUNBUFFERED=1", // so we can get Python print statements
+		}
 
 		log.Println("starting web server")
 

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -60,19 +61,41 @@ func pollAndCompute() error {
 
 // poll runs arxiv_daemon.py and returns true if new papers were added.
 func poll() (bool, error) {
+	// edit file to add our query string
+	pollQuery := viper.GetString("poll.query")
+	log.Println("modifying script with new poll query", pollQuery)
+
+	rep := strings.NewReplacer(
+		"cat:cs.CV+OR+cat:cs.LG+OR+cat:cs.CL+OR+cat:cs.AI+OR+cat:cs.NE+OR+cat:cs.RO",
+		pollQuery,
+	)
+
+	data, err := os.ReadFile("arxiv_daemon.py")
+	if err != nil {
+		return false, err
+	}
+
+	newData := rep.Replace(string(data))
+
+	err = os.WriteFile("arxiv_daemon_temp.py", []byte(newData), 0o600)
+	if err != nil {
+		return false, err
+	}
+
+	// run the edited script
 	cmd := exec.Command( //nolint:gosec // The customer is always right.
-		"python", "arxiv_daemon.py",
+		"python", "-u", "arxiv_daemon_temp.py",
 		"--num", strconv.Itoa(viper.GetInt("poll.num")),
 		"--start", strconv.Itoa(viper.GetInt("poll.start")),
 		"--break-after", strconv.Itoa(viper.GetInt("poll.break")),
 	)
 
-	err := run(cmd)
+	err = run(cmd)
 	if err != nil {
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) {
 			if exitErr.ExitCode() == 1 {
-				log.Println("no new papers found, or polling had an error")
+				log.Println("no new papers found (or polling had an error)")
 
 				return false, nil
 			}
@@ -85,8 +108,12 @@ func poll() (bool, error) {
 }
 
 func compute() error {
-	cmd := exec.Command(
-		"python", "compute.py",
+	cmd := exec.Command( //nolint:gosec // The customer is always right.
+		"python", "-u", "compute.py",
+		"--num", strconv.Itoa(viper.GetInt("compute.features")),
+		"--min_df", viper.GetString("compute.min_df"),
+		"--max_df", viper.GetString("compute.max_df"),
+		"--max_docs", strconv.Itoa(viper.GetInt("compute.max_docs")),
 	)
 
 	return run(cmd)

@@ -11,3 +11,8 @@ See [docker-compose.yml](docker-compose.yml) for an example setup.
 ```sh
 docker build -t kylrth/xanity .
 ```
+
+## TODO
+
+- mail
+- thumbnails

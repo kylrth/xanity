@@ -11,3 +11,19 @@ services:
       - 8080:80
     volumes:
       - ./data:/data
+    environment:
+      # This must be set to something different:
+      SECRETKEY: changeme
+      # The following are optional and show the default values:
+      POLL_ENABLED: "true"
+      POLL_CRON: "*/30 * * * *" # every 30 minutes
+      POLL_NUM: 2000
+      POLL_START: 0
+      POLL_BREAK: 3
+      POLL_QUERY: cat:cs.CV+OR+cat:cs.LG+OR+cat:cs.CL+OR+cat:cs.AI+OR+cat:cs.NE+OR+cat:cs.RO
+      COMPUTE_FEATURES: 20000
+      COMPUTE_MIN_DF: 5
+      COMPUTE_MAX_DF: 0.1
+      COMPUTE_MAX_DOCS: -1
+      MAIL_ENABLED: "false"
+      MAIL_CRON: "0 5 * * *" # 5am every day
