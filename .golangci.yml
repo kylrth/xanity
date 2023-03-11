@@ -1,0 +1,62 @@
+run:
+  # We don't use generics so we can enable all the linters that don't work with them.
+  go: '1.17'
+
+linters-settings:
+  dupl:
+    threshold: 100
+  exhaustive:
+    default-signifies-exhaustive: true
+  funlen:
+    lines: 100
+    statements: 50
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+  gocyclo:
+    min-complexity: 15
+  goimports:
+    local-prefixes: github.com/kylrth/xanity
+  govet:
+    check-shadowing: true
+    enable-all: true
+  lll:
+    line-length: 100
+  misspell:
+    locale: US
+  nolintlint:
+    allow-unused: false
+    allow-leading-space: false
+    require-explanation: true
+    require-specific: true
+
+linters:
+  enable-all: true
+  disable:
+    - deadcode  # abandoned
+    - exhaustivestruct  # abandoned
+    - exhaustruct  # This doesn't make sense to check for in most cases.
+    - forbidigo  # nothing to forbid
+    - gci  # prefer goimports
+    - gochecknoglobals  # I don't think globals should be universally disallowed.
+    - gochecknoinits  # I don't think init should be universally disallowed.
+    - goerr113  # I think it's ok to include info in errors without defining a new type.
+    - goheader  # no need for a header
+    - golint  # deprecated
+    - gomnd  # prefer goconst
+    - ifshort  # deprecated
+    - interfacer  # deprecated
+    - maligned  # deprecated
+    - nosnakecase  # deprecated
+    - scopelint  # deprecated
+    - structcheck
+    - varcheck  # deprecated
+    - varnamelen  # I don't think this matters.
+    - wrapcheck  # I think this should only happen for public functions.
