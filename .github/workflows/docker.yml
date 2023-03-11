@@ -18,7 +18,7 @@ jobs:
       run: |
         echo "BUILD_DATE=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
         echo "GIT_COMMIT=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-        echo "GIT_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+        echo "GIT_TAG=$(git describe --tags --abbrev=0 --always)" >> $GITHUB_OUTPUT
 
     - name: lint
       run: make fmt-check lint-check
